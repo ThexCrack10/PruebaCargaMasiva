@@ -10,6 +10,7 @@ from django.urls import path
 from events.admin import event_admin_site
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.db.models import Count
 
 # Register your models here.
 class EntitiesAdminSite(AdminSite):
@@ -31,21 +32,21 @@ admin.site.unregister(Group)
 class OriginAdmin(admin.ModelAdmin):
     list_display = ("name", "hero_count", "villain_count")
 
-    #def get_queryset(self, request):
-    #    queryset = super().get_queryset(request)
-    #    queryset = queryset.annotate(
-    #        _hero_count=Count("hero", distinct=True),
-    #        _villain_count=Count("villain", distinct=True),
-    #    )
-    #    return queryset
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(
+            _hero_count=Count("hero", distinct=True),
+            _villain_count=Count("villain", distinct=True),
+        )
+        return queryset
 
-    #def hero_count(self, obj):
-    #    return obj._hero_count
+    def hero_count(self, obj):
+        return obj._hero_count
 
-    #def villain_count(self, obj):
-    #    return obj._villain_count
-    #hero_count.admin_order_field = '_hero_count'
-    #villain_count.admin_order_field = '_villain_count'
+    def villain_count(self, obj):
+        return obj._villain_count
+    hero_count.admin_order_field = '_hero_count'
+    villain_count.admin_order_field = '_villain_count'
 
 
 class IsVeryBenevolentFilter(admin.SimpleListFilter):
@@ -92,6 +93,31 @@ class VillainAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ("name", "category", "origin")
     actions = ["export_as_csv"]
 
+    """#change_list_template = "entities/heroes_changelist.html"
+
+    #def get_urls(self):
+    #    urls = super().get_urls()
+    #    my_urls = [
+            #path('entity-admin/', admin.site.urls),
+            #path('event-admin/', event_admin_site.urls),
+            path('import-csv/', self.import_csv),
+        ]
+        return my_urls + urls
+
+    def import_csv(self, request):
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            reader = csv.reader(csv_file)
+            # Create Hero objects from passed in data
+            # ...
+            self.message_user(request, "Your csv file has been imported")
+            return redirect("..")
+        form = CsvImportForm()
+        payload = {"form": form}
+        return render(
+            request, "admin/csv_form.html", payload
+        )"""
+
 @admin.register(Hero)
 class HeroAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ("name", "is_immortal", "category", "origin", "is_very_benevolent")
@@ -112,9 +138,7 @@ class HeroAdmin(admin.ModelAdmin, ExportCsvMixin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            path('entity-admin/', admin.site.urls),
-             path('event-admin/', event_admin_site.urls),
-            path('import-csv/', self.import_csv),
+            path('import-csv/', self.import_csv)
         ]
         return my_urls + urls
 
