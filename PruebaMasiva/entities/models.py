@@ -14,13 +14,13 @@ class Category(models.Model):
 
 class Origin(models.Model):
     name = models.CharField(max_length=100)
-    def hero_count(self, obj):
-        return obj.hero_set.count()
-    def villain_count(self, obj):
-        return obj.villain_set.count()
     
+    def hero_count(self):
+        return self.hero_set.count()
+    def villain_count(self):
+        return self.villain_set.count()
     def __str__(self):
-       return self.name
+        return self.name
 
 
 class Entity(models.Model):
