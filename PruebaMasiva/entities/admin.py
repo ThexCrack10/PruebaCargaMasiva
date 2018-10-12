@@ -93,11 +93,11 @@ class VillainAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ("name", "category", "origin")
     actions = ["export_as_csv"]
 
-    """#change_list_template = "entities/heroes_changelist.html"
+    change_list_template = "entities/heroes_changelist.html"
 
-    #def get_urls(self):
-    #    urls = super().get_urls()
-    #    my_urls = [
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
             #path('entity-admin/', admin.site.urls),
             #path('event-admin/', event_admin_site.urls),
             path('import-csv/', self.import_csv),
@@ -109,14 +109,14 @@ class VillainAdmin(admin.ModelAdmin, ExportCsvMixin):
             csv_file = request.FILES["csv_file"]
             reader = csv.reader(csv_file)
             # Create Hero objects from passed in data
-            # ...
+            
             self.message_user(request, "Your csv file has been imported")
             return redirect("..")
         form = CsvImportForm()
         payload = {"form": form}
         return render(
             request, "admin/csv_form.html", payload
-        )"""
+        )
 
 @admin.register(Hero)
 class HeroAdmin(admin.ModelAdmin, ExportCsvMixin):
